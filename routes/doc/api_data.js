@@ -65,7 +65,7 @@ define({ "api": [
       ]
     },
     "version": "0.0.0",
-    "filename": "routes/user.js",
+    "filename": "./user.js",
     "groupTitle": "User"
   }
 ] });
