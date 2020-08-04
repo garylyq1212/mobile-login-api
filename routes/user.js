@@ -78,7 +78,7 @@ router.post('/login', checkIsMobilePhone(), async (req, res) => {
 
 function checkIsMobilePhone() {
   return check('phone_number')
-    .isMobilePhone(['ms-MY', 'en-SG'], { strictMode: true })
+    .isMobilePhone(['ms-MY', 'en-SG'], { strictMode: true }) // strictMode ensure phone no. begin with +60
     .withMessage('Must be valid phone number');
 }
 
