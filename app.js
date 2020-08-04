@@ -15,7 +15,7 @@ app.use('/user', userRoute);
 const port = 3000;
 app.listen(port, async () => {
   try {
-    // Connecting to database and create tables if existed
+    // Connecting to database and Create tables if existed
     await db.sequelize.sync();
     console.log('Database connected & Tables created successfully');
 

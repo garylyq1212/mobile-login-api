@@ -16,7 +16,14 @@ define({ "api": [
             "description": "<p>Phone number of the User.</p>"
           }
         ]
-      }
+      },
+      "examples": [
+        {
+          "title": "Request-Example:",
+          "content": "{\n  \"phone_number\": \"+60112380554\"\n}",
+          "type": "json"
+        }
+      ]
     },
     "success": {
       "fields": {
@@ -40,7 +47,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n  \"success\": \"It existed\",\n  \"phone_number\": \"60112380554\"\n}",
+          "content": "HTTP/1.1 200 OK\n{\n  \"success\": \"It existed\",\n  \"phone_number\": \"+60112380554\"\n}",
           "type": "json"
         }
       ]
@@ -51,6 +58,12 @@ define({ "api": [
           {
             "group": "Error 4xx",
             "optional": false,
+            "field": "BadRequest",
+            "description": "<p>Must be a valid phone number.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
             "field": "NotFound",
             "description": "<p>The phone number of the User was not found.</p>"
           }
@@ -58,7 +71,12 @@ define({ "api": [
       },
       "examples": [
         {
-          "title": "Error-Response:",
+          "title": "Error-Response (400 - Bad Request):",
+          "content": "HTTP/1.1 400 Bad Request\n{\n  \"errors\": [\n     {\n       \"value\": \"1111\",\n       \"msg\": \"Must be valid phone number\",\n       \"param\": \"phone_number\",\n       \"location\": \"body\"\n     }\n  ]\n}",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response (404 - Not Found):",
           "content": "HTTP/1.1 404 Not Found\n{\n  \"errors\": \"phone number not existed\"\n}",
           "type": "json"
         }

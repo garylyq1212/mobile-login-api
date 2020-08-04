@@ -1,25 +1,9 @@
 const express = require('express');
-const { body, check, validationResult } = require('express-validator');
+const { check, validationResult } = require('express-validator');
 
 const User = require('../models').User;
 
 const router = express.Router();
-
-// function checkIsNumber() {
-//   return body('phone_number').custom((value) => {
-//     if (!value.match(/^[0-9]*$/)) {
-//       throw new Error('must be numbers only');
-//     }
-
-//     return value;
-//   });
-// }
-
-function checkIsNumber() {
-  return check('phone_number')
-    .matches(/^[0-9]*$/)
-    .withMessage('Must be numbers only');
-}
 
 /**
  * @api {post} /user/login Login User with phone number
@@ -27,6 +11,10 @@ function checkIsNumber() {
  * @apiGroup User
  *
  * @apiParam {String} phone_number Phone number of the User.
+ * @apiParamExample {json} Request-Example:
+ *     {
+ *       "phone_number": "+60112380554"
+ *     }
  *
  * @apiSuccess {String} success Successful message.
  * @apiSuccess {String} phone_number Phone number of the User.
@@ -35,26 +23,43 @@ function checkIsNumber() {
  *     HTTP/1.1 200 OK
  *     {
  *       "success": "It existed",
- *       "phone_number": "60112380554"
+ *       "phone_number": "+60112380554"
+ *     }
+ *
+ * @apiError BadRequest Must be a valid phone number.
+ *
+ * @apiErrorExample {json} Error-Response (400 - Bad Request):
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "errors": [
+ *          {
+ *            "value": "1111",
+ *            "msg": "Must be valid phone number",
+ *            "param": "phone_number",
+ *            "location": "body"
+ *          }
+ *       ]
  *     }
  *
  * @apiError NotFound The phone number of the User was not found.
  *
- * @apiErrorExample {json} Error-Response:
+ * @apiErrorExample {json} Error-Response (404 - Not Found):
  *     HTTP/1.1 404 Not Found
  *     {
  *       "errors": "phone number not existed"
  *     }
  */
-router.post('/login', checkIsNumber(), async (req, res) => {
+router.post('/login', checkIsMobilePhone(), async (req, res) => {
   const { phone_number } = req.body;
 
+  // Check the validation request
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.json({ errors: errors.array() });
+    return res.status(400).json({ errors: errors.array() });
   }
 
   try {
+    // Find the user's phone number in database.
     const user = await User.findOne({ where: { phone_number } });
     if (!user) {
       return res.status(404).json({ errors: 'phone number not existed' });
@@ -62,8 +67,19 @@ router.post('/login', checkIsNumber(), async (req, res) => {
 
     res.json({ success: 'It existed', phone_number: user.phone_number });
   } catch (err) {
-    res.status(500).json({ errors: err.message });
+    const errorMessage =
+      process.env.NODE_ENV === 'production'
+        ? '500 Internal Server Error'
+        : err.message;
+
+    res.status(500).json({ errors: errorMessage });
   }
 });
+
+function checkIsMobilePhone() {
+  return check('phone_number')
+    .isMobilePhone(['ms-MY', 'en-SG'], { strictMode: true })
+    .withMessage('Must be valid phone number');
+}
 
 module.exports = router;
